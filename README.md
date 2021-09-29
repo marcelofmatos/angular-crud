@@ -8,10 +8,37 @@ Mais informações...
 
 Instalar o Node do site https://nodejs.org/en/download/
 
+## Frontend
+
 Entra na pasta frontend e executa esse comando:
 
 ```
   npm install
+```
+
+Aí para subir o servidor execute
+
+```
+ng serve
+```
+ou
+```
+npm start
+```
+
+
+## Backend
+
+Entra na pasta backend
+
+```
+  npm install
+```
+
+Aí para subir o servidor execute
+
+```
+npm start
 ```
 
 # FrontEnd
