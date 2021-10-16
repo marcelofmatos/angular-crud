@@ -9,7 +9,8 @@ import { map, catchError } from "rxjs/operators";
   providedIn: "root",
 })
 export class ProductService {
-  baseUrl = "http://localhost:3001/products";
+  // baseUrl = "http://localhost:3001/products";
+  baseUrl = "http://data.instanl.mbm/products";
 
   constructor(private snackBar: MatSnackBar, private http: HttpClient) {}
 
@@ -23,21 +24,31 @@ export class ProductService {
   }
 
   create(product: Product): Observable<Product> {
-    return this.http.post<Product>(this.baseUrl, product).pipe(
+    const url = `${this.baseUrl}/_doc/`;
+    return this.http.post<Product>(url, product).pipe(
       map((obj) => obj),
       catchError((e) => this.errorHandler(e))
     );
   }
 
   read(): Observable<Product[]> {
-    return this.http.get<Product[]>(this.baseUrl).pipe(
-      map((obj) => obj),
+    const url = `${this.baseUrl}/_search/`;
+    return this.http.get<Product[]>(url).pipe(
+      map((response) => {
+        let products = []
+        for(let hit of response.hits.hits) {
+          let product = hit._source
+          product.id = hit._id
+          products.push(product)
+        }
+        return products
+      }),
       catchError((e) => this.errorHandler(e))
     );
   }
 
-  readById(id: number): Observable<Product> {
-    const url = `${this.baseUrl}/${id}`;
+  readById(id: string): Observable<Product> {
+    const url = `${this.baseUrl}/_doc/${id}`;
     return this.http.get<Product>(url).pipe(
       map((obj) => obj),
       catchError((e) => this.errorHandler(e))
@@ -45,15 +56,15 @@ export class ProductService {
   }
 
   update(product: Product): Observable<Product> {
-    const url = `${this.baseUrl}/${product.id}`;
+    const url = `${this.baseUrl}/_doc/${product.id}`;
     return this.http.put<Product>(url, product).pipe(
       map((obj) => obj),
       catchError((e) => this.errorHandler(e))
     );
   }
 
-  delete(id: number): Observable<Product> {
-    const url = `${this.baseUrl}/${id}`;
+  delete(id: string): Observable<Product> {
+    const url = `${this.baseUrl}/_doc/${id}`;
     return this.http.delete<Product>(url).pipe(
       map((obj) => obj),
       catchError((e) => this.errorHandler(e))
@@ -62,6 +73,7 @@ export class ProductService {
 
   errorHandler(e: any): Observable<any> {
     this.showMessage("Ocorreu um erro!", true);
+    console.log(e)
     return EMPTY;
   }
 }
