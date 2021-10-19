@@ -4,5 +4,5 @@ export interface Product {
     price: number
     _id?: string
     _source?: Object
-    hit?: Object[]
+    hits?: Object[]
 }
