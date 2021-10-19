@@ -10,7 +10,7 @@ import { map, catchError } from "rxjs/operators";
 })
 export class ProductService {
   // baseUrl = "http://localhost:3001/products";
-  baseUrl = "http://data.instanl.mbm/products";
+  baseUrl = "http://data.angular-crud.mbm/products";
 
   constructor(private snackBar: MatSnackBar, private http: HttpClient) {}
 
@@ -36,10 +36,12 @@ export class ProductService {
     return this.http.get<Product[]>(url).pipe(
       map((response) => {
         let products = []
-        for(let hit of response.hits.hits) {
-          let product = hit._source
-          product.id = hit._id
-          products.push(product)
+        if(response.hits && response.hits.hits) {
+          for(let hit of response.hits.hits) {
+            let product = hit._source
+            product.id = hit._id
+            products.push(product)
+          }
         }
         return products
       }),
@@ -50,7 +52,11 @@ export class ProductService {
   readById(id: string): Observable<Product> {
     const url = `${this.baseUrl}/_doc/${id}`;
     return this.http.get<Product>(url).pipe(
-      map((obj) => obj),
+      map((obj) => {
+        let data = obj._source
+        data.id = obj._id
+        return obj
+      }),
       catchError((e) => this.errorHandler(e))
     );
   }
